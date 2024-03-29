@@ -1,48 +1,46 @@
 import sys
 sys.path.insert(0,'..')
-sys.path.insert(0,'../../')
-sys.path.insert(0,'../../../pytorch/utils')
-sys.path.insert(0,'../../../pytorch/bucketing')
-sys.path.insert(0,'../../../pytorch/models')
-sys.path.insert(0,'../../../memory_logging')
-# from runtime_nvidia_smi import start_memory_logging, stop_memory_logging
-from bucketing_dataloader import generate_dataloader_bucket_block
+sys.path.insert(0,'../../../pytorch/utils/')
+sys.path.insert(0,'../../../pytorch/micro_batch_train/')
+sys.path.insert(0,'../../../pytorch/models/')
 
 import dgl
 from dgl.data.utils import save_graphs
 import numpy as np
 from statistics import mean
 import torch
-
+import gc
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import os
 
-
+from block_dataloader import generate_dataloader_block
 
 import dgl.nn.pytorch as dglnn
 import time
 import argparse
-
+import tqdm
 
 import random
 from graphsage_model_wo_mem import GraphSAGE
 import dgl.function as fn
-from load_graph import load_reddit, inductive_split, load_ogb, load_cora, load_karate, prepare_data, load_pubmed
+from load_graph import load_reddit, inductive_split, load_cora, load_karate, prepare_data, load_pubmed
 
-from load_graph import load_ogbn_dataset
+from load_graph import load_ogbn_dataset, load_ogb
 from memory_usage import see_memory_usage, nvidia_smi_usage
-
+import tracemalloc
 from cpu_mem_usage import get_memory
 from statistics import mean
-
+# from draw_graph import gen_pyvis_graph_local,gen_pyvis_graph_global,draw_dataloader_blocks_pyvis
+# from draw_graph import draw_dataloader_blocks_pyvis_total
 from my_utils import parse_results
-
 
 import pickle
 from utils import Logger
 import os 
+import numpy
+from collections import Counter
 
 
 
@@ -92,7 +90,7 @@ def evaluate(model, g, nfeats, labels, train_nid, val_nid, test_nid, device, arg
 		# pred = model(g=g, x=nfeats)
 		pred = model.inference(g, nfeats,  args, device)
 	model.train()
-
+	
 	train_acc= compute_acc(pred[train_nid], labels[train_nid].to(pred.device))
 	val_acc=compute_acc(pred[val_nid], labels[val_nid].to(pred.device))
 	test_acc=compute_acc(pred[test_nid], labels[test_nid].to(pred.device))
@@ -113,14 +111,13 @@ def load_block_subtensor(nfeat, labels, blocks, device,args):
 	"""
 
 	# if args.GPUmem:
-	# 	see_memory_usage("----------------------------------------before batch input features to device")
+		# see_memory_usage("----------------------------------------before batch input features to device")
 	batch_inputs = nfeat[blocks[0].srcdata[dgl.NID]].to(device)
 	# if args.GPUmem:
-	# 	see_memory_usage("----------------------------------------after batch input features to device")
+		# see_memory_usage("----------------------------------------after batch input features to device")
 	batch_labels = labels[blocks[-1].dstdata[dgl.NID]].to(device)
-	
 	# if args.GPUmem:
-	# 	see_memory_usage("----------------------------------------after  batch labels to device")
+		# see_memory_usage("----------------------------------------after  batch labels to device")
 	return batch_inputs, batch_labels
 
 def get_compute_num_nids(blocks):
@@ -129,9 +126,9 @@ def get_compute_num_nids(blocks):
 		res+=len(b.srcdata['_ID'])
 	return res
 
-
+	
 def get_FL_output_num_nids(blocks):
-
+	
 	output_fl =len(blocks[0].dstdata['_ID'])
 	return output_fl
 
@@ -139,14 +136,18 @@ def get_FL_output_num_nids(blocks):
 
 #### Entry point
 def run(args, device, data):
-	if args.GPUmem:
-		see_memory_usage("----------------------------------------start of run function ")
+	# if args.GPUmem:
+		# see_memory_usage("----------------------------------------start of run function ")
 	# Unpack data
 	g, nfeats, labels, n_classes, train_nid, val_nid, test_nid = data
 	in_feats = len(nfeats[0])
-	# print('in feats: ', in_feats)
+	print('in feats: ', in_feats)
 	nvidia_smi_list=[]
-
+	# print('the mode of the raw graph')
+	# print(torch.mode(g.in_degrees()))
+	# return
+	# draw_nx_graph(g)
+	# gen_pyvis_graph_global(g,train_nid)
 	if args.selection_method =='metis':
 		args.o_graph = dgl.node_subgraph(g, train_nid)
 
@@ -154,9 +155,20 @@ def run(args, device, data):
 	sampler = dgl.dataloading.MultiLayerNeighborSampler(
 		[int(fanout) for fanout in args.fan_out.split(',')])
 	full_batch_size = len(train_nid)
-
+	
 
 	args.num_workers = 0
+	full_batch_dataloader = dgl.dataloading.DataLoader(
+		g,
+		train_nid,
+		sampler,
+		# device='cpu',
+		batch_size=full_batch_size,
+		shuffle=True,
+		drop_last=False,
+		num_workers=args.num_workers)
+	# if args.GPUmem:
+		# see_memory_usage("----------------------------------------before model to device ")
 
 
 	model = GraphSAGE(
@@ -167,20 +179,21 @@ def run(args, device, data):
 					args.num_layers,
 					F.relu,
 					args.dropout).to(device)
-
+					
 	loss_fcn = nn.CrossEntropyLoss()
 
-	# if args.GPUmem:
-	# 	see_memory_usage("----------------------------------------after model to device")
-	logger = Logger(args.num_runs, args)
-	num_input_list=[]
-	pure_train_time_list =[]
 	dur = []
+	pure_train_time_list=[]
+	num_input_list =[]
+	block_generation_time_list = []
 	for run in range(args.num_runs):
 		model.reset_parameters()
 		# optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+		
 		optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 		for epoch in range(args.num_epochs):
+			print('epoch ', epoch)
+			pure_train_time=0
 			model.train()
 			if epoch >= args.log_indent:
 				t0 = time.time()
@@ -192,93 +205,25 @@ def run(args, device, data):
 				with open(file_name, 'rb') as handle:
 					item=pickle.load(handle)
 					full_batch_dataloader.append(item)
+
 			if epoch >= args.log_indent:
-				print('load pickle file time ', time.time()-t0) 
+				t01 = time.time()
+				print('loading full batch data spends ', t01-t0)
+			# block_dataloader, weights_list, time_collection = generate_dataloader_block(g, full_batch_dataloader, args)
+			# if epoch >= args.log_indent:
+			# 	t02 = time.time()
+			# 	print('generate_dataloader_block spend  ', t02-t01)
+			# 	block_generation_time_list.append(t02-t01)
+
+			# connect_check_time, block_gen_time_total, batch_blocks_gen_time =time_collection
+			# print('connection checking time: ', connect_check_time)
+			# print('block generation total time ', block_gen_time_total)
 			
-			if args.num_batch > 1:
-				print("generate_dataloader_bucket_block=======")
-				time_s = time.time()
-				b_block_dataloader, weights_list, time_collection = generate_dataloader_bucket_block(g, full_batch_dataloader, args)
-				connection_time, block_gen_time, _ = time_collection
-				print('connection check time: ', connection_time)
-				print('block generation time ', block_gen_time)
-				# pure_train_time = 0
-				# time_start = time.time()
-				# num_input =0
-				# for step, (input_nodes, seeds, blocks) in enumerate(b_block_dataloader):
-				# 	print('step ', step )
-				# 	num_input += len(input_nodes)
-				# 	batch_inputs, batch_labels = load_block_subtensor(nfeats, labels, blocks, device,args)#------------*
-				# 	blocks = [block.int().to(device) for block in blocks]#------------*
-				# 	time11= time.time()
-				# 	see_memory_usage("----------------------------------------before batch_pred = model(blocks, batch_inputs)")
-					
-				# 	batch_pred = model(blocks, batch_inputs)#------------*
-				# 	see_memory_usage("----------------------------------------after batch_pred = model(blocks, batch_inputs)")
-				# 	pseudo_mini_loss = loss_fcn(batch_pred, batch_labels)#------------*
-					
-				# 	see_memory_usage("----------------------------------------after loss function")
-				# 	pseudo_mini_loss = pseudo_mini_loss*weights_list[step]#------------*
-				# 	pseudo_mini_loss.backward()#------------*
-				# 	time12= time.time()
-				# 	pure_train_time += (time12-time11)
-				# 	loss_sum += pseudo_mini_loss#------------*
-					
-					
-				# time13= time.time()
-				# optimizer.step()
-				# optimizer.zero_grad()
-				# time_end = time.time()
-    
-				# num_input_list.append(num_input)
-				# see_memory_usage("----------------------------------------after optimizer")
-
-				# pure_train_time += (time_end-time13)
-				# pure_train_time_list.append(pure_train_time)
-				# print('----------------------------------------------------------pseudo_mini_loss sum ' + str(loss_sum.tolist()))
-				# print('pure train time : ', pure_train_time )
-				# print('train time : ', time_end-time_start )
-				# print('end to end time : ', time_end-time_s )
-				# print('connection check time: ', connection_time)
-				# print('block generation time ', block_gen_time)
-    
-
-			# elif args.num_batch == 1:
-			# 	# print('orignal labels: ', labels)
-			# 	for step, (input_nodes, seeds, blocks) in enumerate(full_batch_dataloader):
-			# 		# print()
-			# 		print('full batch src global ', len(input_nodes))
-			# 		print('full batch dst global ', len(seeds))
-			# 		# print('full batch eid global ', blocks[-1].edata['_ID'])
-			# 		batch_inputs, batch_labels = load_block_subtensor(nfeats, labels, blocks, device,args)#------------*
-			# 		see_memory_usage("----------------------------------------after load_block_subtensor")
-			# 		blocks = [block.int().to(device) for block in blocks]
-			# 		see_memory_usage("----------------------------------------after block to device")
-
-					# batch_pred = model(blocks, batch_inputs)
-					# see_memory_usage("----------------------------------------after model")
-
-					# loss = loss_fcn(batch_pred, batch_labels)
-					# print('full batch train ------ loss ' + str(loss.item()) )
-					# see_memory_usage("----------------------------------------after loss")
-
-					# loss.backward()
-					# see_memory_usage("----------------------------------------after loss backward")
-
-					# optimizer.step()
-					# optimizer.zero_grad()
-					# print()
-					# see_memory_usage("----------------------------------------full batch")
-		# if epoch >= args.log_indent:
+	
+	# print('avg block dataloader generation time', np.mean(block_generation_time_list))
+				
 			
-		# 	full_epoch=time.time() - t0
-		# 	print('end to end time ', full_epoch)
-		# 	dur.append(full_epoch)
-		# print('Total (block generation + training)time/epoch {}'.format(np.mean(dur)))	
-		# print('pure train time per /epoch ', pure_train_time_list)
-		# print('pure train time average ', np.mean(pure_train_time_list[3:]))
-		# print('input num list ', num_input_list)
-
+	
 
 def main():
 	# get_memory("-----------------------------------------main_start***************************")
@@ -298,34 +243,33 @@ def main():
 	# argparser.add_argument('--dataset', type=str, default='cora')
 	# argparser.add_argument('--dataset', type=str, default='karate')
 	# argparser.add_argument('--dataset', type=str, default='reddit')
-	# argparser.add_argument('--aggre', type=str, default='mean')
-	argparser.add_argument('--aggre', type=str, default='lstm')
-	# argparser.add_argument('--selection-method', type=str, default='arxiv_backpack_bucketing')
-	# argparser.add_argument('--selection-method', type=str, default='products_10_backpack_bucketing')
-	argparser.add_argument('--selection-method', type=str, default='products_25_backpack_bucketing')
-	# argparser.add_argument('--selection-method', type=str, default='range_bucketing')
-	# argparser.add_argument('--selection-method', type=str, default='random_bucketing')
-	# argparser.add_argument('--selection-method', type=str, default='fanout_bucketing')
-	# argparser.add_argument('--selection-method', type=str, default='custom_bucketing')
-	argparser.add_argument('--num-batch', type=int, default=8)
-	argparser.add_argument('--mem-constraint', type=float, default=18)
+	# argparser.add_argument('--aggre', type=str, default='lstm')
+	argparser.add_argument('--aggre', type=str, default='mean')
+	# argparser.add_argument('--selection-method', type=str, default='range')
+	# argparser.add_argument('--selection-method', type=str, default='random')
+	# argparser.add_argument('--selection-method', type=str, default='metis')
+	argparser.add_argument('--selection-method', type=str, default='REG')
+	argparser.add_argument('--num-batch', type=int, default=2)
+	argparser.add_argument('--batch-size', type=int, default=0)
 
+	argparser.add_argument('--re-partition-method', type=str, default='REG')
+	# argparser.add_argument('--re-partition-method', type=str, default='random')
+	argparser.add_argument('--num-re-partition', type=int, default=0)
+
+	# argparser.add_argument('--balanced_init_ratio', type=float, default=0.2)
 	argparser.add_argument('--num-runs', type=int, default=1)
-	argparser.add_argument('--num-epochs', type=int, default=10)
+	argparser.add_argument('--num-epochs', type=int, default=20)
 
-	argparser.add_argument('--num-hidden', type=int, default=32)
+	argparser.add_argument('--num-hidden', type=int, default=256)
 
-	argparser.add_argument('--num-layers', type=int, default=2)
-	argparser.add_argument('--fan-out', type=str, default='10,25')
-	# argparser.add_argument('--num-layers', type=int, default=1)
-	# argparser.add_argument('--fan-out', type=str, default='10')
-
-
-
+	argparser.add_argument('--num-layers', type=int, default=3)
+	argparser.add_argument('--fan-out', type=str, default='10,25,30')
+	
 	argparser.add_argument('--log-indent', type=float, default=0)
 #--------------------------------------------------------------------------------------
+	
 
-	argparser.add_argument('--lr', type=float, default=1e-3)
+	argparser.add_argument('--lr', type=float, default=1e-2)
 	argparser.add_argument('--dropout', type=float, default=0.5)
 	argparser.add_argument("--weight-decay", type=float, default=5e-4,
 						help="Weight for L2 loss")
@@ -336,12 +280,15 @@ def main():
 		help="Number of sampling processes. Use 0 for no extra process.")
 	
 
+	argparser.add_argument('--log-every', type=int, default=5)
+	argparser.add_argument('--eval-every', type=int, default=5)
+	
 	args = argparser.parse_args()
 	if args.setseed:
 		set_seed(args)
 	device = "cpu"
-	if args.GPUmem:
-		see_memory_usage("-----------------------------------------before load data ")
+	# if args.GPUmem:
+		# see_memory_usage("-----------------------------------------before load data ")
 	if args.dataset=='karate':
 		g, n_classes = load_karate()
 		print('#nodes:', g.number_of_nodes())
@@ -383,10 +330,10 @@ def main():
 		# return
 	else:
 		raise Exception('unknown dataset')
-
-
+		
+	
 	best_test = run(args, device, data)
-
+	
 
 if __name__=='__main__':
 	main()

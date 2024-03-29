@@ -185,12 +185,14 @@ def run(args, device, data):
 	dur = []
 	pure_train_time_list=[]
 	num_input_list =[]
+	block_generation_time_list = []
 	for run in range(args.num_runs):
 		model.reset_parameters()
 		# optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
 		
 		optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
 		for epoch in range(args.num_epochs):
+			print('epoch ', epoch)
 			pure_train_time=0
 			model.train()
 			if epoch >= args.log_indent:
@@ -208,52 +210,54 @@ def run(args, device, data):
 				t01 = time.time()
 				print('loading full batch data spends ', t01-t0)
 			block_dataloader, weights_list, time_collection = generate_dataloader_block(g, full_batch_dataloader, args)
-			connect_check_time, block_gen_time_total, batch_blocks_gen_time =time_collection
-			print('connection checking time: ', connect_check_time)
-			print('block generation total time ', block_gen_time_total)
 			if epoch >= args.log_indent:
 				t02 = time.time()
 				print('generate_dataloader_block spend  ', t02-t01)
+				block_generation_time_list.append(t02-t01)
+
+	# 		connect_check_time, block_gen_time_total, batch_blocks_gen_time =time_collection
+	# 		print('connection checking time: ', connect_check_time)
+	# 		print('block generation total time ', block_gen_time_total)
 			
-			
-			pseudo_mini_loss = torch.tensor([], dtype=torch.long)
-			num_input_nids=0
-			for step, (input_nodes, seeds, blocks) in enumerate(block_dataloader):
-				print('step ', step)
-				num_input_nids	+= len(input_nodes)
-				batch_inputs, batch_labels = load_block_subtensor(nfeats, labels, blocks, device,args)#------------*
+	# 		pseudo_mini_loss = torch.tensor([], dtype=torch.long)
+	# 		num_input_nids=0
+	# 		for step, (input_nodes, seeds, blocks) in enumerate(block_dataloader):
+	# 			print('step ', step)
+	# 			num_input_nids	+= len(input_nodes)
+	# 			batch_inputs, batch_labels = load_block_subtensor(nfeats, labels, blocks, device,args)#------------*
 				
-				blocks = [block.int().to(device) for block in blocks]#------------*
-				t1= time.time()
-				batch_pred = model(blocks, batch_inputs)#------------*
-				see_memory_usage("----------------------------------------after batch_pred = model(blocks, batch_inputs)")
+	# 			blocks = [block.int().to(device) for block in blocks]#------------*
+	# 			t1= time.time()
+	# 			batch_pred = model(blocks, batch_inputs)#------------*
+	# 			see_memory_usage("----------------------------------------after batch_pred = model(blocks, batch_inputs)")
 					
-				pseudo_mini_loss = loss_fcn(batch_pred, batch_labels)#------------*
-				see_memory_usage("----------------------------------------after loss function")
-				pseudo_mini_loss = pseudo_mini_loss*weights_list[step]#------------*
-				pseudo_mini_loss.backward()#------------*
-				t2 = time.time()
-				pure_train_time += (t2-t1)
-				loss_sum += pseudo_mini_loss#------------*
+	# 			pseudo_mini_loss = loss_fcn(batch_pred, batch_labels)#------------*
+	# 			see_memory_usage("----------------------------------------after loss function")
+	# 			pseudo_mini_loss = pseudo_mini_loss*weights_list[step]#------------*
+	# 			pseudo_mini_loss.backward()#------------*
+	# 			t2 = time.time()
+	# 			pure_train_time += (t2-t1)
+	# 			loss_sum += pseudo_mini_loss#------------*
     
-			t3=time.time()
-			optimizer.step()
-			optimizer.zero_grad()
-			t4=time.time()
-			pure_train_time += (t4-t3)
-			pure_train_time_list.append(pure_train_time)
-			print('pure train time ',pure_train_time)
-			num_input_list.append(num_input_nids)
-			if args.GPUmem:
-					see_memory_usage("-----------------------------------------after optimizer zero grad")
-			print('----------------------------------------------------------pseudo_mini_loss sum ' + str(loss_sum.tolist()))
+	# 		t3=time.time()
+	# 		optimizer.step()
+	# 		optimizer.zero_grad()
+	# 		t4=time.time()
+	# 		pure_train_time += (t4-t3)
+	# 		pure_train_time_list.append(pure_train_time)
+	# 		print('pure train time ',pure_train_time)
+	# 		num_input_list.append(num_input_nids)
+	# 		if args.GPUmem:
+	# 				see_memory_usage("-----------------------------------------after optimizer zero grad")
+	# 		print('----------------------------------------------------------pseudo_mini_loss sum ' + str(loss_sum.tolist()))
 			
-			if epoch >= args.log_indent:
-				dur.append(time.time() - t0)
-	print('Total (block generation + training)time/epoch {}'.format(np.mean(dur)))
-	print('pure train time/epoch {}'.format(np.mean(pure_train_time_list[4:])))
-	print('')
-	print('num_input_list ', num_input_list)
+	# 		if epoch >= args.log_indent:
+	# 			dur.append(time.time() - t0)
+	# print('Total (block generation + training)time/epoch {}'.format(np.mean(dur)))
+	# print('pure train time/epoch {}'.format(np.mean(pure_train_time_list[4:])))
+	# print('')
+	# print('num_input_list ', num_input_list)
+	print('avg block dataloader generation time', np.mean(block_generation_time_list))
 				
 			
 	
@@ -282,7 +286,7 @@ def main():
 	# argparser.add_argument('--selection-method', type=str, default='random')
 	# argparser.add_argument('--selection-method', type=str, default='metis')
 	argparser.add_argument('--selection-method', type=str, default='REG')
-	argparser.add_argument('--num-batch', type=int, default=1)
+	argparser.add_argument('--num-batch', type=int, default=2)
 	argparser.add_argument('--batch-size', type=int, default=0)
 
 	argparser.add_argument('--re-partition-method', type=str, default='REG')
@@ -291,7 +295,7 @@ def main():
 
 	# argparser.add_argument('--balanced_init_ratio', type=float, default=0.2)
 	argparser.add_argument('--num-runs', type=int, default=1)
-	argparser.add_argument('--num-epochs', type=int, default=1)
+	argparser.add_argument('--num-epochs', type=int, default=10)
 
 	argparser.add_argument('--num-hidden', type=int, default=256)
 
