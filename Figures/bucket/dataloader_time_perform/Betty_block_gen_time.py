@@ -209,18 +209,18 @@ def run(args, device, data):
 			if epoch >= args.log_indent:
 				t01 = time.time()
 				print('loading full batch data spends ', t01-t0)
-			# block_dataloader, weights_list, time_collection = generate_dataloader_block(g, full_batch_dataloader, args)
-			# if epoch >= args.log_indent:
-			# 	t02 = time.time()
-			# 	print('generate_dataloader_block spend  ', t02-t01)
-			# 	block_generation_time_list.append(t02-t01)
+			block_dataloader, weights_list, time_collection = generate_dataloader_block(g, full_batch_dataloader, args)
+			if epoch >= args.log_indent:
+				t02 = time.time()
+				print('generate_dataloader_block spend  ', t02-t01)
+				block_generation_time_list.append(t02-t01)
 
-			# connect_check_time, block_gen_time_total, batch_blocks_gen_time =time_collection
-			# print('connection checking time: ', connect_check_time)
-			# print('block generation total time ', block_gen_time_total)
+			connect_check_time, block_gen_time_total, batch_blocks_gen_time =time_collection
+			print('connection checking time: ', connect_check_time)
+			print('block generation total time ', block_gen_time_total)
 			
 	
-	# print('avg block dataloader generation time', np.mean(block_generation_time_list))
+	print('avg block dataloader generation time', np.mean(block_generation_time_list))
 				
 			
 	
@@ -249,7 +249,7 @@ def main():
 	# argparser.add_argument('--selection-method', type=str, default='random')
 	# argparser.add_argument('--selection-method', type=str, default='metis')
 	argparser.add_argument('--selection-method', type=str, default='REG')
-	argparser.add_argument('--num-batch', type=int, default=2)
+	argparser.add_argument('--num-batch', type=int, default=14)
 	argparser.add_argument('--batch-size', type=int, default=0)
 
 	argparser.add_argument('--re-partition-method', type=str, default='REG')
@@ -258,14 +258,16 @@ def main():
 
 	# argparser.add_argument('--balanced_init_ratio', type=float, default=0.2)
 	argparser.add_argument('--num-runs', type=int, default=1)
-	argparser.add_argument('--num-epochs', type=int, default=20)
+	argparser.add_argument('--num-epochs', type=int, default=10)
 
 	argparser.add_argument('--num-hidden', type=int, default=256)
 
-	argparser.add_argument('--num-layers', type=int, default=3)
-	argparser.add_argument('--fan-out', type=str, default='10,25,30')
+	argparser.add_argument('--num-layers', type=int, default=2)
+	argparser.add_argument('--fan-out', type=str, default='10,25')
+	# argparser.add_argument('--num-layers', type=int, default=3)
+	# argparser.add_argument('--fan-out', type=str, default='10,25,30')
 	
-	argparser.add_argument('--log-indent', type=float, default=0)
+	argparser.add_argument('--log-indent', type=float, default=2)
 #--------------------------------------------------------------------------------------
 	
 
