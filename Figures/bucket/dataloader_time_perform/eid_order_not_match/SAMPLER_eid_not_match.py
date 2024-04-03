@@ -233,8 +233,8 @@ def run(args, device, data):
 					print('src ', src)
 					print('dst ', dst)
 					ds_list = [[2,1],[0,3]]
-					# ds_list = [[2,0,1,3]]
-					# ds_list = [[2,0],[1,3]]
+					ds_list = [[2,0,1,3]]
+					ds_list = [[2,0],[1,3]]
 					for i,dst_new in enumerate(ds_list) :
 						weights_list.append(len(dst_new)/len(dst))
 						block_list=[]
@@ -258,42 +258,62 @@ def run(args, device, data):
 								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
 								print('layer_graph.nodes ', layer_graph.ndata)
 								
-								sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[-1])
-								block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
+								# sg1 = dgl.node_subgraph(layer_graph, dst_new, relabel_nodes=False,store_ids=True)
+								sampler = dgl.dataloading.NeighborSampler([processed_fan_out[-1]])
+								dataloader = sampler.sample_blocks(layer_graph, torch.tensor(dst_new))
+								print('dataloader ', dataloader)
 								
+								# sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[-1])
+								# print()
+								# print(sg1)
+								# print(sg1.nodes())
+								# print(sg1.ndata['_ID'])
+								# print(sg1.edges())
+								# print(list(sg1.edges())[0])
+								# t1 = list(sg1.edges())[0]
+								# t2 = list(sg1.edges())[1]
+								# lenn = len( torch.cat((t1, t2)).unique())
+								# print('length ', lenn)
+								# print('src new : ', sg1.ndata['_ID'])
+								
+								# print('edges()')							
+								# print(sg1.edges())
+								
+								# block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
+								block = dataloader[2][0]
+								print('new block ')
 								print(block)
-								print(block.srcdata['_ID'])
+								print(block.srcdata)
 								# print(block.ndata['_ID'])
 								print(block.edges())
-								# print(block.edata[])
+								print(block.edata)
 								print(block.srcdata[dgl.NID])
 								print(block.dstdata[dgl.NID])
 								dst_new = block.srcdata[dgl.NID]
 								block_list.append(block)
-							if layer == 1:
-								print('input layer')
-								print('full_block ', full_block)
-								print('full_block.edata[_ID]', full_block.edata['_ID'])
-								layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
-								dst_len = len(full_block.srcdata['_ID'])
-								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
-								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
-								print('layer_graph.edges() ', layer_graph.edata)
-								print('layer_graph.edges() ', layer_graph.edges())
+							# if layer == 1:
+							# 	print('input layer')
+							# 	print('full_block ', full_block)
+							# 	print('full_block.edata[_ID]', full_block.edata['_ID'])
+							# 	layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
+							# 	dst_len = len(full_block.srcdata['_ID'])
+							# 	layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
+							# 	layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
+							# 	print('layer_graph.edges() ', layer_graph.edata)
+							# 	print('layer_graph.edges() ', layer_graph.edges())
+							# 	sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[0])
+							# 	print('sg1.nodes',sg1.nodes())
+							# 	print('sg1.edges',sg1.edges())
+							# 	block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
 								
-								sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[0])
-								print('sg1.nodes',sg1.nodes())
-								print('sg1.edges',sg1.edges())
-								block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
-								
-								print('new block ')
-								print(block)
-								print(block.ndata['_ID'])
-								# print(block.edges())
-								# print(block.edata)
-								print(block.srcdata[dgl.NID])
-								print(block.dstdata[dgl.NID])
-								block_list.insert(0,block)
+								# print('new block ')
+								# print(block)
+								# print(block.ndata['_ID'])
+								# # print(block.edges())
+								# # print(block.edata)
+								# print(block.srcdata[dgl.NID])
+								# print(block.dstdata[dgl.NID])
+								# block_list.insert(0,block)
 						block_dataloader.append((block.srcdata[dgl.NID], ds_list[i], block_list))
 
 				pseudo_mini_loss = torch.tensor([], dtype=torch.long)

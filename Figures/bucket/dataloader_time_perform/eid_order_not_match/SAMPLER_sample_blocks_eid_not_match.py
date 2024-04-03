@@ -258,9 +258,15 @@ def run(args, device, data):
 								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
 								print('layer_graph.nodes ', layer_graph.ndata)
 								
-								sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[-1])
-								block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
+								# sg1 = dgl.node_subgraph(layer_graph, dst_new, relabel_nodes=False,store_ids=True)
+								sampler = dgl.dataloading.NeighborSampler([processed_fan_out[-1]])
+								dataloader = sampler.sample_blocks(layer_graph, torch.tensor(dst_new))
+								print('dataloader ', dataloader)
 								
+								# sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[-1])
+								# block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
+								block = dataloader[2][0]
+								print('new block ')
 								print(block)
 								print(block.srcdata['_ID'])
 								# print(block.ndata['_ID'])
@@ -280,17 +286,21 @@ def run(args, device, data):
 								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
 								print('layer_graph.edges() ', layer_graph.edata)
 								print('layer_graph.edges() ', layer_graph.edges())
-								
-								sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[0])
-								print('sg1.nodes',sg1.nodes())
-								print('sg1.edges',sg1.edges())
-								block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
-								
+								sampler = dgl.dataloading.NeighborSampler([processed_fan_out[0]])
+								dataloader = sampler.sample_blocks(layer_graph, torch.tensor(dst_new))
+								block = dataloader[2][0]
 								print('new block ')
 								print(block)
-								print(block.ndata['_ID'])
-								# print(block.edges())
-								# print(block.edata)
+								# sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[0])
+								# print('sg1.nodes',sg1.nodes())
+								# print('sg1.edges',sg1.edges())
+								# block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
+								
+								# print('new block ')
+								# print(block)
+								# print(block.ndata['_ID'])
+								# # print(block.edges())
+								# # print(block.edata)
 								print(block.srcdata[dgl.NID])
 								print(block.dstdata[dgl.NID])
 								block_list.insert(0,block)

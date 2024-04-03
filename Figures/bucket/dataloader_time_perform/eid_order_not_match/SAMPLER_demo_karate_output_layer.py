@@ -226,121 +226,62 @@ def run(args, device, data):
 				# 			gi = dgl.block_to_graph(bi)
 				# 			print('the output layer graph ')
 				# 			print(gi)
-				block_dataloader=[]
-				weights_list = []
 				for step , (src, dst, full_blocks) in enumerate(full_batch_dataloader):
 					print(' micro batch ', step )
 					print('src ', src)
 					print('dst ', dst)
-					ds_list = [[2,1],[0,3]]
-					# ds_list = [[2,0,1,3]]
-					# ds_list = [[2,0],[1,3]]
-					for i,dst_new in enumerate(ds_list) :
-						weights_list.append(len(dst_new)/len(dst))
-						block_list=[]
-						for layer , full_block in enumerate(reversed(full_blocks)):
-							if layer == 0:
-								print('the output layer ')
-								print('output layer fanout ', processed_fan_out[-1])
-								
-								print('full_block ', full_block)
-								layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
-								print('layer_graph.edges() before remove isolated nodes', layer_graph.edges())
-								print('layer_graph.nodes() ', layer_graph.nodes())
-								# print('layer_graph.ndata[_ID] ', layer_graph.ndata['_ID'])
-								print('layer_graph.edata[_ID] ', layer_graph.edata['_ID'])
-								
-								print('layer_graph ', layer_graph)
-								print('layer_graph.edges ', layer_graph.edges())
-								
-								dst_len = len(full_block.srcdata['_ID'])
-								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
-								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
-								print('layer_graph.nodes ', layer_graph.ndata)
-								
-								sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[-1])
-								block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
-								
-								print(block)
-								print(block.srcdata['_ID'])
-								# print(block.ndata['_ID'])
-								print(block.edges())
-								# print(block.edata[])
-								print(block.srcdata[dgl.NID])
-								print(block.dstdata[dgl.NID])
-								dst_new = block.srcdata[dgl.NID]
-								block_list.append(block)
-							if layer == 1:
-								print('input layer')
-								print('full_block ', full_block)
-								print('full_block.edata[_ID]', full_block.edata['_ID'])
-								layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
-								dst_len = len(full_block.srcdata['_ID'])
-								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
-								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
-								print('layer_graph.edges() ', layer_graph.edata)
-								print('layer_graph.edges() ', layer_graph.edges())
-								
-								sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[0])
-								print('sg1.nodes',sg1.nodes())
-								print('sg1.edges',sg1.edges())
-								block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
-								
-								print('new block ')
-								print(block)
-								print(block.ndata['_ID'])
-								# print(block.edges())
-								# print(block.edata)
-								print(block.srcdata[dgl.NID])
-								print(block.dstdata[dgl.NID])
-								block_list.insert(0,block)
-						block_dataloader.append((block.srcdata[dgl.NID], ds_list[i], block_list))
+					for layer , full_block in enumerate(reversed(full_blocks)):
+						if layer == 0:
+							print('the output layer ')
+							print('output layer fanout ', processed_fan_out[-1])
+							
+							print('full_block ', full_block)
+							layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
+							print('layer_graph.edges() before remove isolated nodes', layer_graph.edges())
+							print('layer_graph.nodes() ', layer_graph.nodes())
+							# print('layer_graph.ndata[_ID] ', layer_graph.ndata['_ID'])
+							print('layer_graph.edata[_ID] ', layer_graph.edata['_ID'])
+							
+							print('layer_graph ', layer_graph)
+							print('layer_graph.edges ', layer_graph.edges())
+							
+							dst_len = len(full_block.srcdata['_ID'])
+							layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
+							layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
+							print('layer_graph.nodes ', layer_graph.ndata)
+							
+							dst_new = [2,1]
 
-				pseudo_mini_loss = torch.tensor([], dtype=torch.long)
-				num_input_nids=0
-				pure_train_time=0
-				print('weights_list', weights_list)
-				for step, (input_nodes, seeds, blocks) in enumerate(block_dataloader):
-					print('step ', step)
-					print('input_nodes', input_nodes)
-					print('seeds', seeds)
-					print('blocks', blocks)
-					num_input_nids	+= len(input_nodes)
-					batch_inputs, batch_labels = load_block_subtensor(nfeats, labels, blocks, device,args)#------------*
-					
-					blocks = [block.int().to(device) for block in blocks]#------------*
-					t1= time.time()
-					batch_pred = model(blocks, batch_inputs)#------------*
-					see_memory_usage("----------------------------------------after batch_pred = model(blocks, batch_inputs)")
-						
-					pseudo_mini_loss = loss_fcn(batch_pred, batch_labels)#------------*
-					see_memory_usage("----------------------------------------after loss function")
-					pseudo_mini_loss = pseudo_mini_loss*weights_list[step]#------------*
-					pseudo_mini_loss.backward()#------------*
-					t2 = time.time()
-					pure_train_time += (t2-t1)
-					loss_sum += pseudo_mini_loss#------------*
-    
-				t3=time.time()
-				optimizer.step()
-				optimizer.zero_grad()
-				t4=time.time()
-				pure_train_time += (t4-t3)
-				pure_train_time_list.append(pure_train_time)
-				print('pure train time ',pure_train_time)
-				num_input_list.append(num_input_nids)
-				if args.GPUmem:
-						see_memory_usage("-----------------------------------------after optimizer zero grad")
-				print('----------------------------------------------------------pseudo_mini_loss sum ' + str(loss_sum.tolist()))
-			
-				if epoch >= args.log_indent:
-					dur.append(time.time() - t0)
-		print('Total (block generation + training)time/epoch {}'.format(np.mean(dur)))
-		print('pure train time/epoch {}'.format(np.mean(pure_train_time_list[4:])))
-		print('')
-		print('num_input_list ', num_input_list)
-		# print('avg block dataloader generation time', np.mean(block_generation_time_list))
-
+							sg1 = dgl.sampling.sample_neighbors(layer_graph, dst_new, processed_fan_out[-1])
+							print()
+							print(sg1)
+							print(sg1.nodes())
+							print(sg1.ndata['_ID'])
+							print(sg1.edges())
+							print(list(sg1.edges())[0])
+							t1 = list(sg1.edges())[0]
+							t2 = list(sg1.edges())[1]
+							lenn = len( torch.cat((t1, t2)).unique())
+							print('length ', lenn)
+							print('src new : ', sg1.ndata['_ID'])
+							# print('dst new ',sg1.ndata['_ID'][:2])
+							print('edges()')							
+							print(sg1.edges())
+							# b_dst = sg1.ndata['_ID'][:2]
+							block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
+							
+							print('new block ')
+							print(block)
+							print(block.ndata['_ID'])
+							# print(block.edges())
+							# print(block.edata)
+							print(block.srcdata[dgl.NID])
+							print(block.dstdata[dgl.NID])
+							# for step, (src_out, dst, blocks) in enumerate(output_dataloader):
+							# 	print('src_out ', src_out)
+							# 	print('dst ', dst)
+							# 	print('blocks', blocks)
+							
 
 					
 
@@ -379,7 +320,7 @@ def main():
 	argparser.add_argument('--num-runs', type=int, default=1)
 	argparser.add_argument('--num-epochs', type=int, default=1)
 
-	argparser.add_argument('--num-hidden', type=int, default=256)
+	argparser.add_argument('--num-hidden', type=int, default=32)
 
 	argparser.add_argument('--num-layers', type=int, default=2)
 	argparser.add_argument('--fan-out', type=str, default='2,4')
