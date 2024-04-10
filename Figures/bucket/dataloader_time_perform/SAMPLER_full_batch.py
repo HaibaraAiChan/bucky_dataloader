@@ -206,143 +206,30 @@ def run(args, device, data):
 				print('load pickle file time ', time.time()-t0) 
 			
 			if args.num_batch > 1:
-				# print("generate_dataloader_bucket_block=======")
-				# time_s = time.time()
-				# b_block_dataloader, weights_list, time_collection = generate_dataloader_bucket_block(g, full_batch_dataloader, args)
-
-				# data_loader_bucketing_time_list.append(time.time()-time_s)
-				# print(' current epoch dataloader time ', time.time()-time_s)
-				# connection_time, block_gen_time, _ = time_collection
-				# print('connection check time: ', connection_time)
-				# print('block generation time ', block_gen_time)
-				# print('')
-				# pure_train_time = 0
-				# time_start = time.time()
-				# num_input =0
-				# for step, (input_nodes, seeds, blocks) in enumerate(b_block_dataloader):
-				# 	print(' micro batch ', step )
-				# 	for layer, bi in enumerate(reversed(blocks)):
-				# 		if layer == 0:
-				# 			print('the output layer ')
-				# 			gi = dgl.block_to_graph(bi)
-				# 			print('the output layer graph ')
-				# 			print(gi)
-				block_dataloader=[]
-				weights_list = []
-				for step , (src, dst, full_blocks) in enumerate(full_batch_dataloader):
+				
+				for step , (src, dst, blocks) in enumerate(full_batch_dataloader):
 					print(' micro batch ', step )
 					print('src ', src)
 					print('dst ', dst)
-					ds_list = [[2,1],[0,3]]
-					ds_list = [[2,0,1,3]]
-					# ds_list = [[2,0],[1,3]]
-					for i,dst_new in enumerate(ds_list) :
-						weights_list.append(len(dst_new)/len(dst))
-						block_list=[]
-						for layer , full_block in enumerate(reversed(full_blocks)):
-							if layer == 0:
-								print('the output layer ')
-								print('output layer fanout ', processed_fan_out[-1])
-								
-								print('full_block ', full_block)
-								layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
-								print('layer_graph.edges() before remove isolated nodes', layer_graph.edges())
-								print('layer_graph.nodes() ', layer_graph.nodes())
-								# print('layer_graph.ndata[_ID] ', layer_graph.ndata['_ID'])
-								print('layer_graph.edata[_ID] ', layer_graph.edata['_ID'])
-								
-								print('layer_graph ', layer_graph)
-								print('layer_graph.edges ', layer_graph.edges())
-								
-								dst_len = len(full_block.srcdata['_ID'])
-								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
-								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
-								print('layer_graph.nodes ', layer_graph.ndata)
-								
-								sg1 = dgl.sampling.sample_neighbors_range(layer_graph, dst_new, processed_fan_out[-1])
-								block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
-								
-								print(block)
-								print(block.srcdata['_ID'])
-								# print(block.ndata['_ID'])
-								print('block.edges() ', block.edges())
-								# print(block.edata[])
-								print('block.srcdata[dgl.NID] ', block.srcdata[dgl.NID])
-								print('block.dstdata[dgl.NID] ',block.dstdata[dgl.NID])
-								dst_new = block.srcdata[dgl.NID]
-								block_list.append(block)
-							if layer == 1:
-								print('input layer')
-								print('full_block ', full_block)
-								print('full_block.edata[_ID]', full_block.edata['_ID'])
-								layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
-								dst_len = len(full_block.srcdata['_ID'])
-								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
-								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
-								print('layer_graph.edges() ', layer_graph.edata)
-								print('layer_graph.edges() ', layer_graph.edges())
-								
-								sg1 = dgl.sampling.sample_neighbors_range(layer_graph, dst_new, processed_fan_out[0])
-								print('sg1.nodes',sg1.nodes())
-								print('sg1.edges',sg1.edges())
-								block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
-								
-								print('new block ')
-								print(block)
-								print(block.ndata['_ID'])
-								# print(block.edges())
-								# print(block.edata)
-								print('block.srcdata[dgl.NID] ', block.srcdata[dgl.NID])
-								print('block.dstdata[dgl.NID] ', block.dstdata[dgl.NID])
-								block_list.insert(0,block)
-						block_dataloader.append((block.srcdata[dgl.NID], ds_list[i], block_list))
+					
 
-				pseudo_mini_loss = torch.tensor([], dtype=torch.long)
-				num_input_nids=0
-				pure_train_time=0
-				print('weights_list', weights_list)
-				for step, (input_nodes, seeds, blocks) in enumerate(block_dataloader):
-					print('step ', step)
-					print('input_nodes', input_nodes)
-					print('seeds', seeds)
 					print('blocks', blocks)
-					num_input_nids	+= len(input_nodes)
+
 					batch_inputs, batch_labels = load_block_subtensor(nfeats, labels, blocks, device,args)#------------*
 					print('batch_inputs ', batch_inputs)
 					print('batch_labels ', batch_labels)
 					blocks = [block.int().to(device) for block in blocks]#------------*
-					t1= time.time()
 					batch_pred = model(blocks, batch_inputs)#------------*
-					see_memory_usage("----------------------------------------after batch_pred = model(blocks, batch_inputs)")
 						
 					loss = loss_fcn(batch_pred, batch_labels)#------------*
-					see_memory_usage("----------------------------------------after loss function")
-					pseudo_mini_loss = loss*weights_list[step]#------------*
-					pseudo_mini_loss.backward()#------------*
-					t2 = time.time()
-					pure_train_time += (t2-t1)
-					loss_sum += pseudo_mini_loss#------------*
-    
-				t3=time.time()
+					print('----------------------------------------------------------loss  ' + str(loss))
+			
+					loss.backward()#------------*
 				optimizer.step()
 				optimizer.zero_grad()
-				t4=time.time()
-				pure_train_time += (t4-t3)
-				pure_train_time_list.append(pure_train_time)
-				print('pure train time ',pure_train_time)
-				num_input_list.append(num_input_nids)
-				if args.GPUmem:
-						see_memory_usage("-----------------------------------------after optimizer zero grad")
-				print('----------------------------------------------------------pseudo_mini_loss sum ' + str(loss_sum.tolist()))
-			
-				if epoch >= args.log_indent:
-					dur.append(time.time() - t0)
-		print('Total (block generation + training)time/epoch {}'.format(np.mean(dur)))
-		print('pure train time/epoch {}'.format(np.mean(pure_train_time_list[4:])))
-		print('')
-		print('num_input_list ', num_input_list)
-		# print('avg block dataloader generation time', np.mean(block_generation_time_list))
-
+				
+				
+		
 
 					
 

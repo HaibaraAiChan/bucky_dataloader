@@ -138,7 +138,19 @@ def get_FL_output_num_nids(blocks):
 	output_fl =len(blocks[0].dstdata['_ID'])
 	return output_fl
 
+def split_tensor(tensor, num_parts):
+	N = tensor.size(0)
+	split_size = N // num_parts
+	if N % num_parts != 0:
+		split_size += 1
 
+	# Split the tensor into two parts
+	split_tensors = torch.split(tensor, split_size)
+
+	# Convert the split tensors into a list
+	split_list = list(split_tensors)
+	weight_list = [len(part) / N for part in split_tensors]
+	return split_list, weight_list
 
 #### Entry point
 def run(args, device, data):
@@ -209,35 +221,11 @@ def run(args, device, data):
 				# print("generate_dataloader_bucket_block=======")
 				# time_s = time.time()
 				# b_block_dataloader, weights_list, time_collection = generate_dataloader_bucket_block(g, full_batch_dataloader, args)
-
-				# data_loader_bucketing_time_list.append(time.time()-time_s)
-				# print(' current epoch dataloader time ', time.time()-time_s)
-				# connection_time, block_gen_time, _ = time_collection
-				# print('connection check time: ', connection_time)
-				# print('block generation time ', block_gen_time)
-				# print('')
-				# pure_train_time = 0
-				# time_start = time.time()
-				# num_input =0
-				# for step, (input_nodes, seeds, blocks) in enumerate(b_block_dataloader):
-				# 	print(' micro batch ', step )
-				# 	for layer, bi in enumerate(reversed(blocks)):
-				# 		if layer == 0:
-				# 			print('the output layer ')
-				# 			gi = dgl.block_to_graph(bi)
-				# 			print('the output layer graph ')
-				# 			print(gi)
-				block_dataloader=[]
-				weights_list = []
+				block_dataloader = []
 				for step , (src, dst, full_blocks) in enumerate(full_batch_dataloader):
-					print(' micro batch ', step )
-					print('src ', src)
-					print('dst ', dst)
-					ds_list = [[2,1],[0,3]]
-					ds_list = [[2,0,1,3]]
-					# ds_list = [[2,0],[1,3]]
-					for i,dst_new in enumerate(ds_list) :
-						weights_list.append(len(dst_new)/len(dst))
+					dst_list, weights_list = split_tensor(dst, 2) #######
+					for i,dst_new in enumerate(dst_list) :
+						
 						block_list=[]
 						for layer , full_block in enumerate(reversed(full_blocks)):
 							if layer == 0:
@@ -253,10 +241,10 @@ def run(args, device, data):
 								
 								print('layer_graph ', layer_graph)
 								print('layer_graph.edges ', layer_graph.edges())
-								
-								dst_len = len(full_block.srcdata['_ID'])
-								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
-								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
+								# print('^^^^^^^^^^^^^^^^^^^layer_graph.ndata ', layer_graph.ndata)
+								src_len = len(full_block.srcdata['_ID'])
+								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.nodes()))
+								layer_graph.ndata['_ID'][:src_len] = full_block.srcdata['_ID']
 								print('layer_graph.nodes ', layer_graph.ndata)
 								
 								sg1 = dgl.sampling.sample_neighbors_range(layer_graph, dst_new, processed_fan_out[-1])
@@ -277,7 +265,7 @@ def run(args, device, data):
 								print('full_block.edata[_ID]', full_block.edata['_ID'])
 								layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
 								dst_len = len(full_block.srcdata['_ID'])
-								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
+								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.nodes()))
 								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
 								print('layer_graph.edges() ', layer_graph.edata)
 								print('layer_graph.edges() ', layer_graph.edges())
@@ -295,7 +283,7 @@ def run(args, device, data):
 								print('block.srcdata[dgl.NID] ', block.srcdata[dgl.NID])
 								print('block.dstdata[dgl.NID] ', block.dstdata[dgl.NID])
 								block_list.insert(0,block)
-						block_dataloader.append((block.srcdata[dgl.NID], ds_list[i], block_list))
+						block_dataloader.append((block.srcdata[dgl.NID], dst_list[i], block_list))
 
 				pseudo_mini_loss = torch.tensor([], dtype=torch.long)
 				num_input_nids=0
@@ -359,11 +347,11 @@ def main():
 	argparser.add_argument('--GPUmem', type=bool, default=True)
 	argparser.add_argument('--load-full-batch', type=bool, default=True)
 	# argparser.add_argument('--root', type=str, default='../my_full_graph/')
-	# argparser.add_argument('--dataset', type=str, default='ogbn-arxiv')
+	argparser.add_argument('--dataset', type=str, default='ogbn-arxiv')
 	# argparser.add_argument('--dataset', type=str, default='ogbn-mag')
 	# argparser.add_argument('--dataset', type=str, default='ogbn-products')
 	# argparser.add_argument('--dataset', type=str, default='cora')
-	argparser.add_argument('--dataset', type=str, default='karate')
+	# argparser.add_argument('--dataset', type=str, default='karate')
 	# argparser.add_argument('--dataset', type=str, default='reddit')
 	# argparser.add_argument('--aggre', type=str, default='mean')
 	argparser.add_argument('--aggre', type=str, default='lstm')
@@ -375,7 +363,7 @@ def main():
 	# argparser.add_argument('--selection-method', type=str, default='random_bucketing')
 	argparser.add_argument('--selection-method', type=str, default='fanout_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='custom_bucketing')
-	argparser.add_argument('--num-batch', type=int, default=3)
+	argparser.add_argument('--num-batch', type=int, default=2)
 	argparser.add_argument('--mem-constraint', type=float, default=18)
 
 	argparser.add_argument('--num-runs', type=int, default=1)
@@ -384,8 +372,8 @@ def main():
 	argparser.add_argument('--num-hidden', type=int, default=256)
 
 	argparser.add_argument('--num-layers', type=int, default=2)
-	argparser.add_argument('--fan-out', type=str, default='2,4')
-	# argparser.add_argument('--fan-out', type=str, default='10,25')
+	# argparser.add_argument('--fan-out', type=str, default='2,4')
+	argparser.add_argument('--fan-out', type=str, default='10,25')
 	# argparser.add_argument('--num-layers', type=int, default=1)
 	# argparser.add_argument('--fan-out', type=str, default='10')
 
