@@ -10,6 +10,7 @@ sys.path.insert(0,'/home/cc/Betty_baseline/pytorch/bucketing')
 sys.path.insert(0,'/home/cc/Betty_baseline/pytorch/utils')
 sys.path.insert(0,'/home/cc/Betty_baseline/pytorch/models')
 from bucketing_dataloader import generate_dataloader_bucket_block
+from utils import get_in_degree_bucketing
 
 import dgl
 from dgl.data.utils import save_graphs
@@ -224,88 +225,89 @@ def run(args, device, data):
 								
 								print('the output layer ')
 								print('output layer fanout: ', processed_fan_out[-1])
-								
+								dst_list=get_in_degree_bucketing(full_block)
+								print('get_in_degree_bucketing ', dst_list)
 								print('full_block of output layer:', full_block)
-								layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
-								print('layer_graph.edges() before remove isolated nodes', layer_graph.edges())
-								print('layer_graph.nodes() ', layer_graph.nodes())
-								# print('layer_graph.ndata[_ID] ', layer_graph.ndata['_ID'])
-								print('layer_graph.edata[_ID] ', layer_graph.edata['_ID'])
+				# 				layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
+				# 				print('layer_graph.edges() before remove isolated nodes', layer_graph.edges())
+				# 				print('layer_graph.nodes() ', layer_graph.nodes())
+				# 				# print('layer_graph.ndata[_ID] ', layer_graph.ndata['_ID'])
+				# 				print('layer_graph.edata[_ID] ', layer_graph.edata['_ID'])
 								
-								print('layer_graph ', layer_graph)
-								print('layer_graph.edges ', layer_graph.edges())
+				# 				print('layer_graph ', layer_graph)
+				# 				print('layer_graph.edges ', layer_graph.edges())
 								
-								dst_len = len(full_block.srcdata['_ID'])
-								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.nodes()))
-								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
-								print('layer_graph.nodes ', layer_graph.ndata)
+				# 				dst_len = len(full_block.srcdata['_ID'])
+				# 				layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.nodes()))
+				# 				layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
+				# 				print('layer_graph.nodes ', layer_graph.ndata)
 								
-								sg1 = dgl.sampling.sample_neighbors_range(layer_graph, dst_new, processed_fan_out[-1])
-								block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
-								print('-------'*5)
-								print('*** new block ***')
-								print(block)
-								# print(block.srcdata['_ID'])
-								# print(block.ndata['_ID'])
-								print('block.edges() ', block.edges())
-								# print(block.edata[])
-								print('block.srcdata[dgl.NID] ', block.srcdata[dgl.NID])
-								print('block.dstdata[dgl.NID] ',block.dstdata[dgl.NID])
-								dst_new = block.srcdata[dgl.NID]
-								block_list.append(block)
-							if layer == 1:
+				# 				sg1 = dgl.sampling.sample_neighbors_range(layer_graph, dst_new, processed_fan_out[-1])
+				# 				block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
+				# 				print('-------'*5)
+				# 				print('*** new block ***')
+				# 				print(block)
+				# 				# print(block.srcdata['_ID'])
+				# 				# print(block.ndata['_ID'])
+				# 				print('block.edges() ', block.edges())
+				# 				# print(block.edata[])
+				# 				print('block.srcdata[dgl.NID] ', block.srcdata[dgl.NID])
+				# 				print('block.dstdata[dgl.NID] ',block.dstdata[dgl.NID])
+				# 				dst_new = block.srcdata[dgl.NID]
+				# 				block_list.append(block)
+				# 			if layer == 1:
 								
-								print('the input layer')
-								print('full_block ', full_block)
-								print('full_block.edata[_ID]', full_block.edata['_ID'])
-								layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
-								dst_len = len(full_block.srcdata['_ID'])
-								layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
-								layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
-								print('layer_graph.edges() ', layer_graph.edata)
-								print('layer_graph.edges() ', layer_graph.edges())
+				# 				print('the input layer')
+				# 				print('full_block ', full_block)
+				# 				print('full_block.edata[_ID]', full_block.edata['_ID'])
+				# 				layer_graph = dgl.edge_subgraph(g, full_block.edata['_ID'],relabel_nodes=False,store_ids=True)
+				# 				dst_len = len(full_block.srcdata['_ID'])
+				# 				layer_graph.ndata['_ID']=torch.tensor([-1]*len(layer_graph.ndata['train_mask']))
+				# 				layer_graph.ndata['_ID'][:dst_len] = full_block.srcdata['_ID']
+				# 				print('layer_graph.edges() ', layer_graph.edata)
+				# 				print('layer_graph.edges() ', layer_graph.edges())
 								
-								sg1 = dgl.sampling.sample_neighbors_range(layer_graph, dst_new, processed_fan_out[0])
-								print('sg1.nodes',sg1.nodes())
-								print('sg1.edges',sg1.edges())
-								block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
-								print('-------'*5)
-								print('*** new block ***')
+				# 				sg1 = dgl.sampling.sample_neighbors_range(layer_graph, dst_new, processed_fan_out[0])
+				# 				print('sg1.nodes',sg1.nodes())
+				# 				print('sg1.edges',sg1.edges())
+				# 				block = dgl.to_block(sg1,dst_new, include_dst_in_src= True)
+				# 				print('-------'*5)
+				# 				print('*** new block ***')
 								
-								print(block)
-								# print(block.ndata['_ID'])
-								print('block.edges()',block.edges())
-								# print(block.edata)
-								print('block.srcdata[dgl.NID] ', block.srcdata[dgl.NID])
-								print('block.dstdata[dgl.NID] ', block.dstdata[dgl.NID])
-								block_list.insert(0,block)
-						block_dataloader.append((block.srcdata[dgl.NID], ds_list[i], block_list))
+				# 				print(block)
+				# 				# print(block.ndata['_ID'])
+				# 				print('block.edges()',block.edges())
+				# 				# print(block.edata)
+				# 				print('block.srcdata[dgl.NID] ', block.srcdata[dgl.NID])
+				# 				print('block.dstdata[dgl.NID] ', block.dstdata[dgl.NID])
+				# 				block_list.insert(0,block)
+				# 		block_dataloader.append((block.srcdata[dgl.NID], ds_list[i], block_list))
 
-				pseudo_mini_loss = torch.tensor([], dtype=torch.long)
+				# pseudo_mini_loss = torch.tensor([], dtype=torch.long)
 				
-				print('weights_list', weights_list)
-				for step, (input_nodes, seeds, blocks) in enumerate(block_dataloader):
-					print('step ', step)
-					print('input_nodes', input_nodes)
-					print('seeds', seeds)
-					print('blocks', blocks)
+				# print('weights_list', weights_list)
+				# for step, (input_nodes, seeds, blocks) in enumerate(block_dataloader):
+				# 	print('step ', step)
+				# 	print('input_nodes', input_nodes)
+				# 	print('seeds', seeds)
+				# 	print('blocks', blocks)
 					
-					batch_inputs, batch_labels = load_block_subtensor(nfeats, labels, blocks, device,args)#------------*
-					print('batch_inputs ', batch_inputs)
-					print('batch_labels ', batch_labels)
-					blocks = [block.int().to(device) for block in blocks]#------------*
+				# 	batch_inputs, batch_labels = load_block_subtensor(nfeats, labels, blocks, device,args)#------------*
+				# 	print('batch_inputs ', batch_inputs)
+				# 	print('batch_labels ', batch_labels)
+				# 	blocks = [block.int().to(device) for block in blocks]#------------*
 					
-					batch_pred = model(blocks, batch_inputs)#------------*
-					loss = loss_fcn(batch_pred, batch_labels)#------------*
-					pseudo_mini_loss = loss*weights_list[step]#------------*
-					pseudo_mini_loss.backward()#------------*
-					loss_sum += pseudo_mini_loss
+				# 	batch_pred = model(blocks, batch_inputs)#------------*
+				# 	loss = loss_fcn(batch_pred, batch_labels)#------------*
+				# 	pseudo_mini_loss = loss*weights_list[step]#------------*
+				# 	pseudo_mini_loss.backward()#------------*
+				# 	loss_sum += pseudo_mini_loss
 					
 				
-				optimizer.step()
-				optimizer.zero_grad()
+				# optimizer.step()
+				# optimizer.zero_grad()
 				
-				print('----------------------------------------------------------pseudo_mini_loss sum ' + str(loss_sum.tolist()))
+				# print('----------------------------------------------------------pseudo_mini_loss sum ' + str(loss_sum.tolist()))
 			
 				
 
