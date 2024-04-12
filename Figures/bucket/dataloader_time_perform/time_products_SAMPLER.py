@@ -352,7 +352,7 @@ def main():
 	# argparser.add_argument('--selection-method', type=str, default='random_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='fanout_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='group_bucketing')
-	argparser.add_argument('--num-batch', type=int, default=)
+	argparser.add_argument('--num-batch', type=int, default=20)
 	argparser.add_argument('--mem-constraint', type=float, default=18)
 
 	argparser.add_argument('--num-runs', type=int, default=1)
@@ -371,7 +371,7 @@ def main():
 	argparser.add_argument('--log-indent', type=float, default=0)
 #--------------------------------------------------------------------------------------
 
-	argparser.add_argument('--lr', type=float, default=1e-3)
+	argparser.add_argument('--lr', type=float, default=1e-2)
 	argparser.add_argument('--dropout', type=float, default=0.5)
 	argparser.add_argument("--weight-decay", type=float, default=5e-4,
 						help="Weight for L2 loss")
