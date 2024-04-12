@@ -7,6 +7,7 @@ mkdir $save_path
 
 hidden=128
 for nb in 12 13 14 15 16 17 18 19 20 24 32
+# for nb in 12 
 do
     echo "---start products_25_time.py REG $nb batches"
     python time_products_SAMPLER.py \

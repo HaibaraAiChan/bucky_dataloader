@@ -313,6 +313,7 @@ def run(args, device, data):
 			if epoch >= args.log_indent:
 				dur.append(time.time() - t0)
 		print('Total (block generation + training)time/epoch {}'.format(np.mean(dur)))
+		print('Total (block generation + training)time/epoch list{}'.format(dur))
 		print('pure train time/epoch {}'.format(np.mean(pure_train_time_list[4:])))
 		print('dataloader time ', data_loader_gen_time_list)
 		print('dataloader time avg per epoch {}'.format(np.mean(data_loader_gen_time_list[4:])))
@@ -352,13 +353,13 @@ def main():
 	# argparser.add_argument('--selection-method', type=str, default='random_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='fanout_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='group_bucketing')
-	argparser.add_argument('--num-batch', type=int, default=20)
+	argparser.add_argument('--num-batch', type=int, default=14)
 	argparser.add_argument('--mem-constraint', type=float, default=18)
 
 	argparser.add_argument('--num-runs', type=int, default=1)
 	argparser.add_argument('--num-epochs', type=int, default=10)
 
-	argparser.add_argument('--num-hidden', type=int, default=256)
+	argparser.add_argument('--num-hidden', type=int, default=128)
 
 	argparser.add_argument('--num-layers', type=int, default=2)
 	# argparser.add_argument('--fan-out', type=str, default='2,4')
