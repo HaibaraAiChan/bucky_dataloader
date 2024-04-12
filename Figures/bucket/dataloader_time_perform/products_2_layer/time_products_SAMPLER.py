@@ -11,6 +11,7 @@ sys.path.insert(0,'/home/cc/Betty_baseline/pytorch/utils')
 sys.path.insert(0,'/home/cc/Betty_baseline/pytorch/models')
 from bucketing_dataloader import generate_dataloader_bucket_block
 from bucketing_dataloader import dataloader_gen_bucketing
+from bucketing_dataloader import dataloader_gen_bucketing_time
 import dgl
 from dgl.data.utils import save_graphs
 import numpy as np
