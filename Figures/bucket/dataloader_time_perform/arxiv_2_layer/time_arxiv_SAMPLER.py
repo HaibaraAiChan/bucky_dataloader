@@ -338,42 +338,37 @@ def main():
 	argparser.add_argument('--GPUmem', type=bool, default=True)
 	argparser.add_argument('--load-full-batch', type=bool, default=True)
 	# argparser.add_argument('--root', type=str, default='../my_full_graph/')
-	# argparser.add_argument('--dataset', type=str, default='ogbn-arxiv')
+	argparser.add_argument('--dataset', type=str, default='ogbn-arxiv')
 	# argparser.add_argument('--dataset', type=str, default='ogbn-mag')
-	argparser.add_argument('--dataset', type=str, default='ogbn-products')
+	# argparser.add_argument('--dataset', type=str, default='ogbn-products')
 	# argparser.add_argument('--dataset', type=str, default='cora')
 	# argparser.add_argument('--dataset', type=str, default='karate')
 	# argparser.add_argument('--dataset', type=str, default='reddit')
 	# argparser.add_argument('--aggre', type=str, default='mean')
 	argparser.add_argument('--aggre', type=str, default='lstm')
 	argparser.add_argument('--model', type=str, default='SAGE')
-	# argparser.add_argument('--selection-method', type=str, default='arxiv_25_backpack_bucketing')
+	argparser.add_argument('--selection-method', type=str, default='arxiv_25_backpack_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='products_10_backpack_bucketing')
-	argparser.add_argument('--selection-method', type=str, default='products_25_backpack_bucketing')
+	# argparser.add_argument('--selection-method', type=str, default='products_25_backpack_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='range_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='random_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='fanout_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='group_bucketing')
-	argparser.add_argument('--num-batch', type=int, default=14)
+	argparser.add_argument('--num-batch', type=int, default=5)
 	argparser.add_argument('--mem-constraint', type=float, default=18)
 
 	argparser.add_argument('--num-runs', type=int, default=1)
 	argparser.add_argument('--num-epochs', type=int, default=10)
 
-	argparser.add_argument('--num-hidden', type=int, default=128)
+	argparser.add_argument('--num-hidden', type=int, default=1024)
 
 	argparser.add_argument('--num-layers', type=int, default=2)
-	# argparser.add_argument('--fan-out', type=str, default='2,4')
 	argparser.add_argument('--fan-out', type=str, default='10,25')
-	# argparser.add_argument('--num-layers', type=int, default=1)
-	# argparser.add_argument('--fan-out', type=str, default='10')
-
-
 
 	argparser.add_argument('--log-indent', type=float, default=0)
 #--------------------------------------------------------------------------------------
 
-	argparser.add_argument('--lr', type=float, default=1e-2)
+	argparser.add_argument('--lr', type=float, default=1e-3)
 	argparser.add_argument('--dropout', type=float, default=0.5)
 	argparser.add_argument("--weight-decay", type=float, default=5e-4,
 						help="Weight for L2 loss")

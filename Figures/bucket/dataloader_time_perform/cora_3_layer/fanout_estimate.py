@@ -4,6 +4,9 @@ sys.path.insert(0,'..')
 sys.path.insert(0,'../../pytorch/utils/')
 sys.path.insert(0,'../../pytorch/bucketing/')
 sys.path.insert(0,'../../pytorch/models/')
+sys.path.insert(0,'/home/cc/Betty_baseline/pytorch/bucketing')
+sys.path.insert(0,'/home/cc/Betty_baseline/pytorch/utils')
+sys.path.insert(0,'/home/cc/Betty_baseline/pytorch/models')
 import dgl
 from dgl.data.utils import save_graphs
 import numpy as np
@@ -227,9 +230,9 @@ def estimate_mem(data_dict, in_feat, hidden_size, redundant_ratio, fanout):
 	print()
 	modified_estimated_mem_list = []
 	for idx,(key, val) in enumerate(estimated_mem_dict.items()):
-		modified_estimated_mem_list.append(estimated_mem_dict[key]*redundant_ratio[idx]*0.226) 
+		modified_estimated_mem_list.append(estimated_mem_dict[key]*redundant_ratio[idx]*0.24) 
 		# redundant_ratio[i] is a variable depends on graph characteristic
-		print(' MM estimated memory/GB degree '+str(key)+': '+str(estimated_mem_dict[key]) + " * " +str(redundant_ratio[idx]) +" *"+str(0.226) ) 
+		print(' MM estimated memory/GB degree '+str(key)+': '+str(estimated_mem_dict[key]) + " * " +str(redundant_ratio[idx]) +" *"+str(0.24) ) 
 	
 	print()
 	print('modified_estimated_mem_list ')
@@ -285,7 +288,7 @@ def run(args, device, data):
 			# start of data preprocessing part---s---------s--------s-------------s--------s------------s--------s----
 			if args.load_full_batch:
 				full_batch_dataloader=[]
-				file_name=r'/home/cc/Betty_baseline/dataset/fan_out_'+args.fan_out+'/'+args.dataset+'_'+str(epoch)+'_items.pickle'
+				file_name=r'/home/cc/dataset/fan_out_'+args.fan_out+'/'+args.dataset+'_'+str(epoch)+'_items.pickle'
 				with open(file_name, 'rb') as handle:
 					item=pickle.load(handle)
 					full_batch_dataloader.append(item)
@@ -395,7 +398,7 @@ def main():
 	# argparser.add_argument('--dataset', type=str, default='reddit')
 	# argparser.add_argument('--aggre', type=str, default='mean')
 	argparser.add_argument('--aggre', type=str, default='lstm')
-
+	argparser.add_argument('--model', type=str, default='SAGE')
 	# argparser.add_argument('--selection-method', type=str, default='range_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='random_bucketing')
 	argparser.add_argument('--selection-method', type=str, default='fanout_bucketing')
@@ -409,7 +412,7 @@ def main():
 	argparser.add_argument('--num-epochs', type=int, default=1)
 
 	argparser.add_argument('--num-hidden', type=int, default=2048)
-	# argparser.add_argument('--num-hidden', type=int, default=1024)
+
 
 	argparser.add_argument('--num-layers', type=int, default=3)
 	argparser.add_argument('--fan-out', type=str, default='10,25,30')
@@ -417,7 +420,7 @@ def main():
 	argparser.add_argument('--log-indent', type=float, default=0)
 #--------------------------------------------------------------------------------------
 
-	argparser.add_argument('--lr', type=float, default=1e-5)
+	argparser.add_argument('--lr', type=float, default=1e-3)
 	argparser.add_argument('--dropout', type=float, default=0.5)
 	argparser.add_argument("--weight-decay", type=float, default=5e-4,
 						help="Weight for L2 loss")
