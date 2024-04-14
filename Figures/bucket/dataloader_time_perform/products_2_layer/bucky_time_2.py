@@ -324,6 +324,7 @@ def run(args, device, data):
 
 		print('pure train time per /epoch ', pure_train_time_list)
 		print('pure train time average ', np.mean(pure_train_time_list[3:]))
+		print('num_input list ', num_input_list)
 
 def main():
 	# get_memory("-----------------------------------------main_start***************************")

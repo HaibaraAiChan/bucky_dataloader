@@ -6,7 +6,7 @@ save_path=./log_2-layer-10,25/SAGE/h_1024
 mkdir $save_path
 
 hidden=1024
-for nb in 4 6 7 8 9 10 11 12 16 32
+for nb in 4 5 6 7 8 9 10 11 12 16 32
 do
     echo "---start  $nb batches"
     python bucky_time_2.py \

@@ -228,6 +228,7 @@ def run(args, device, data):
 				train_s = time.time()#
 				num_input =0
 				pure_train_time = 0
+
 				for step, (input_nodes, seeds, blocks) in enumerate(block_dataloader):
 					print('step ', step )
 					num_input += len(input_nodes)
@@ -324,6 +325,8 @@ def run(args, device, data):
 
 		print('pure train time per /epoch ', pure_train_time_list)
 		print('pure train time average ', np.mean(pure_train_time_list[3:]))
+		print()
+		print('num_input list ', num_input_list)
 
 def main():
 	# get_memory("-----------------------------------------main_start***************************")
