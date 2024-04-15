@@ -233,9 +233,10 @@ def run(args, device, data):
 			pseudo_mini_loss = torch.tensor([], dtype=torch.long)
 			pure_train_time = 0
 
-
+			num_input = 0
 			for step, (input_nodes, seeds, blocks) in enumerate(block_dataloader):
 				print('step ', step )
+				num_input += len(input_nodes)
 				f_s= time.time()#
 				batch_inputs, batch_labels = load_block_subtensor(nfeats, labels, blocks, device,args)#------------*
 				blocks = [block.int().to(device) for block in blocks]#------------*
@@ -261,7 +262,9 @@ def run(args, device, data):
 			train_time_list.append(train_time)#
 			feature_time_list.append(features_load_time)#
 			pure_train_time_list.append(pure_train_time)
-			
+			num_input_list.append(num_input)
+			print('num_input ', num_input)
+			print('pure train ', pure_train_time)
 			
 			
 			epoch_end_time = time.time()
@@ -291,7 +294,10 @@ def run(args, device, data):
 		print('---feature block loading time ', np.mean(feature_time_list[4:]))
 		print()
 		print('	pure train time avg ', np.mean(pure_train_time_list[4:]))
-			
+		print('pure train time per /epoch ', pure_train_time_list)
+		print()
+		print('num_input list ', num_input_list)
+		print('num_input  average ', np.mean(num_input_list))
 			
 	
 

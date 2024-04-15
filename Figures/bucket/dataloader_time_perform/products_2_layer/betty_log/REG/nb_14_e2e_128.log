@@ -1,0 +1,33 @@
+main start at this time 1713160690.1100795
+#nodes: 2449029
+#edges: 123718024
+#classes: 47
+success----------------------------------------
+196571
+39255
+2164782
+# Nodes: 2400608
+# Edges: 123718024
+# Train: 196571
+# Val: 39255
+# Test: 2164782
+# Classes: 47
+
+in feats:  100
+REG start----................................
+Convert a graph into a bidirected graph: 3.574 seconds, peak memory: 23.826 GB
+Construct multi-constraint weights: 0.000 seconds, peak memory: 23.826 GB
+Metis partitioning: 13.010 seconds, peak memory: 25.081 GB
+Split the graph: 4.499 seconds
+Construct subgraphs: 0.049 seconds
+REG metis partition end ----................................
+REG construction  time spent:  72.32322287559509
+pure dgl.metis_partition the time spent:  21.182857751846313
+
+block_gen_time in "generate_blocks_for_one_layer_block"  7.218564033508301
+
+
+block_gen_time in "generate_blocks_for_one_layer_block"  23.937302589416504
+
+step  0
+step  1

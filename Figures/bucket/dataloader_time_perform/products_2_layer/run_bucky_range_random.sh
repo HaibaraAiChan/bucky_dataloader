@@ -7,7 +7,7 @@ mkdir $save_path
 
 hidden=128
 folder=range
-for nb in 12 13 
+for nb in 14 15 16 17 18 19 20 22 24 32
 do
     echo "---start  $nb batches"
     python bucky_time_2.py \
@@ -27,7 +27,7 @@ do
 done
 
 folder=random
-for nb in  12 13 14 15 16 24 32
+for nb in  17 18 19 20 22 
 do
     echo "---start  $nb batches"
     python bucky_time_2.py \
@@ -45,3 +45,23 @@ do
         --lr 1e-2 \
     > "${save_path}/${folder}/nb_${nb}.log"
 done
+
+# folder=metis
+# for nb in 12 13 14 15 16 17 18 19 20 22 24 32
+# do
+#     echo "---start metis  $nb batches"
+#     python bucky_time_2.py \
+#         --dataset ogbn-products \
+#         --selection-method metis_bucketing \
+#         --num-batch $nb \
+#         --mem-constraint 18.1 \
+#         --num-layers 2 \
+#         --fan-out 10,25 \
+#         --num-hidden $hidden \
+#         --num-runs 1 \
+#         --num-epoch 20 \
+#         --aggre lstm \
+#         --log-indent 3 \
+#         --lr 1e-2 \
+#     > "${save_path}/${folder}/nb_${nb}.log"
+# done
