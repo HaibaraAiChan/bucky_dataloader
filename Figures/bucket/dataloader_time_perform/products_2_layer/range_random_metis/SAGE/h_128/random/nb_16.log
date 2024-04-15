@@ -1,0 +1,557 @@
+main start at this time 1713136824.5703936
+-----------------------------------------before load data 
+ Nvidia-smi: 0.3560791015625 GB
+    Memory Allocated: 0.0  GigaBytes
+Max Memory Allocated: 0.0  GigaBytes
+
+#nodes: 2449029
+#edges: 123718024
+#classes: 47
+success----------------------------------------
+196571
+39255
+2164782
+# Nodes: 2400608
+# Edges: 123718024
+# Train: 196571
+# Val: 39255
+# Test: 2164782
+# Classes: 47
+
+----------------------------------------start of run function 
+ Nvidia-smi: 0.3560791015625 GB
+    Memory Allocated: 0.0  GigaBytes
+Max Memory Allocated: 0.0  GigaBytes
+
+the output layer 
+self.num_batch (get_in_degree_bucketing) 16
+---||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||--
+self.num_batch,  16
+bkt_dst_nodes_list = self.get_in_degree_bucketing() spend:  0.009638786315917969
+self.gen_batches_seeds_list(bkt_dst_nodes_list_local) spend  0.004943132400512695
+num_output  196571
+self.output_nids  196571
+output nodes length match
+global output equals  True
+partition total batch output list spend :  2.8337912559509277
+self.buckets_partition() spend  sec:  0.014610052108764648
+step  0
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 0.72412109375 GB
+    Memory Allocated: 0.1918644905090332  GigaBytes
+Max Memory Allocated: 0.1918644905090332  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 8.38818359375 GB
+    Memory Allocated: 7.69417142868042  GigaBytes
+Max Memory Allocated: 7.791210174560547  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 8.38818359375 GB
+    Memory Allocated: 7.6964826583862305  GigaBytes
+Max Memory Allocated: 7.791210174560547  GigaBytes
+
+step  1
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 8.56787109375 GB
+    Memory Allocated: 0.3969101905822754  GigaBytes
+Max Memory Allocated: 7.791210174560547  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 21.20068359375 GB
+    Memory Allocated: 16.694103240966797  GigaBytes
+Max Memory Allocated: 16.993335247039795  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 21.20068359375 GB
+    Memory Allocated: 16.69641399383545  GigaBytes
+Max Memory Allocated: 16.993335247039795  GigaBytes
+
+step  2
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 21.20068359375 GB
+    Memory Allocated: 0.40622425079345703  GigaBytes
+Max Memory Allocated: 16.993335247039795  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 17.73974609375 GB
+    Memory Allocated: 16.72834825515747  GigaBytes
+Max Memory Allocated: 17.02652883529663  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 17.73974609375 GB
+    Memory Allocated: 16.730745315551758  GigaBytes
+Max Memory Allocated: 17.02652883529663  GigaBytes
+
+step  3
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 17.73974609375 GB
+    Memory Allocated: 0.41575145721435547  GigaBytes
+Max Memory Allocated: 17.02652883529663  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 17.74365234375 GB
+    Memory Allocated: 16.71482563018799  GigaBytes
+Max Memory Allocated: 17.02652883529663  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 17.74365234375 GB
+    Memory Allocated: 16.717222690582275  GigaBytes
+Max Memory Allocated: 17.02652883529663  GigaBytes
+
+step  4
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 17.74365234375 GB
+    Memory Allocated: 0.42974185943603516  GigaBytes
+Max Memory Allocated: 17.02652883529663  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 19.54248046875 GB
+    Memory Allocated: 16.781396865844727  GigaBytes
+Max Memory Allocated: 17.079442501068115  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 19.54248046875 GB
+    Memory Allocated: 16.784392833709717  GigaBytes
+Max Memory Allocated: 17.079442501068115  GigaBytes
+
+step  5
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 19.54248046875 GB
+    Memory Allocated: 0.4400629997253418  GigaBytes
+Max Memory Allocated: 17.079442501068115  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 16.83561611175537  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 16.838660717010498  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+step  6
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 0.4492630958557129  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 16.78840398788452  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 16.790791034698486  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+step  7
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 0.4567995071411133  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 16.76663064956665  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 16.769196033477783  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+step  8
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 0.46764087677001953  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 16.798214435577393  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 16.800875186920166  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+step  9
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 20.45654296875 GB
+    Memory Allocated: 0.47656726837158203  GigaBytes
+Max Memory Allocated: 17.133568286895752  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 22.42529296875 GB
+    Memory Allocated: 16.85131597518921  GigaBytes
+Max Memory Allocated: 17.14878749847412  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 22.42529296875 GB
+    Memory Allocated: 16.853778839111328  GigaBytes
+Max Memory Allocated: 17.14878749847412  GigaBytes
+
+step  10
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 22.42529296875 GB
+    Memory Allocated: 0.48626136779785156  GigaBytes
+Max Memory Allocated: 17.14878749847412  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 22.42529296875 GB
+    Memory Allocated: 16.835468769073486  GigaBytes
+Max Memory Allocated: 17.14878749847412  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 22.42529296875 GB
+    Memory Allocated: 16.837862968444824  GigaBytes
+Max Memory Allocated: 17.14878749847412  GigaBytes
+
+step  11
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 22.42529296875 GB
+    Memory Allocated: 0.4952692985534668  GigaBytes
+Max Memory Allocated: 17.14878749847412  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 22.42529296875 GB
+    Memory Allocated: 16.871487140655518  GigaBytes
+Max Memory Allocated: 17.169363975524902  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 22.42529296875 GB
+    Memory Allocated: 16.87404441833496  GigaBytes
+Max Memory Allocated: 17.169363975524902  GigaBytes
+
+step  12
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 22.42529296875 GB
+    Memory Allocated: 0.5045084953308105  GigaBytes
+Max Memory Allocated: 17.169363975524902  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 16.88674020767212  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 16.88924789428711  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  13
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 0.5125460624694824  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 16.82318115234375  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 16.82548761367798  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  14
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 0.5250325202941895  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 16.85788059234619  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 16.860562801361084  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  15
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 0.5308809280395508  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 16.861539363861084  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 16.86391544342041  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after optimizer
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 0.5581159591674805  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------------------------pseudo_mini_loss sum 5.206855297088623
+the output layer 
+self.num_batch (get_in_degree_bucketing) 16
+---||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||-----||--
+self.num_batch,  16
+bkt_dst_nodes_list = self.get_in_degree_bucketing() spend:  0.012406349182128906
+self.gen_batches_seeds_list(bkt_dst_nodes_list_local) spend  0.004776477813720703
+num_output  196571
+self.output_nids  196571
+output nodes length match
+global output equals  True
+partition total batch output list spend :  2.8283400535583496
+self.buckets_partition() spend  sec:  0.017209291458129883
+step  0
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.33544921875 GB
+    Memory Allocated: 0.22067832946777344  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 7.689276218414307  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 7.682742118835449  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  1
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.39971065521240234  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.77479600906372  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.777106761932373  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  2
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.407991886138916  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.740121364593506  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.74264430999756  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  3
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.41927003860473633  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.798564434051514  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.80078887939453  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  4
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.42928409576416016  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.805118083953857  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.807435989379883  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  5
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.43766355514526367  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.763506412506104  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.76582431793213  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  6
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.4452338218688965  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.779042720794678  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.78134250640869  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  7
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.45602989196777344  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.83748960494995  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.839807510375977  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  8
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.4618110656738281  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.749409675598145  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.751938343048096  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  9
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.47202396392822266  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.808369636535645  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.811063766479492  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  10
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.48208045959472656  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.82775068283081  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.830068588256836  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  11
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.48826122283935547  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.776883125305176  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.77914333343506  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  12
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.4991278648376465  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.84259033203125  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.84528160095215  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  13
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.5080223083496094  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.880995273590088  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.883294105529785  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  14
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.5151324272155762  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.84429121017456  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+----------------------------------------after loss function
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 16.846535205841064  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+
+step  15
+----------------------------------------before batch_pred = model(blocks, batch_inputs)
+ Nvidia-smi: 23.57568359375 GB
+    Memory Allocated: 0.5255393981933594  GigaBytes
+Max Memory Allocated: 17.184359073638916  GigaBytes
+

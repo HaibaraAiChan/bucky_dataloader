@@ -153,7 +153,7 @@ def run(args, device, data):
 	# print('in feats: ', in_feats)
 	nvidia_smi_list=[]
 
-	if args.selection_method =='metis':
+	if 'metis' in args.selection_method :
 		args.o_graph = dgl.node_subgraph(g, train_nid)
 
 
@@ -258,12 +258,13 @@ def run(args, device, data):
 				time_end = time.time()
     
 				num_input_list.append(num_input)
+				print('number of input ', num_input)
 				see_memory_usage("----------------------------------------after optimizer")
 
 				pure_train_time += (time_end-time13)
 				pure_train_time_list.append(pure_train_time)
 				print('----------------------------------------------------------pseudo_mini_loss sum ' + str(loss_sum.tolist()))
-				# print('pure train time : ', pure_train_time )
+				print('pure train time : ', pure_train_time )
 				train_e = time.time()#
 				train_time = train_e-train_s#
 				train_time_list.append(train_time)#
@@ -325,6 +326,7 @@ def run(args, device, data):
 		print('pure train time per /epoch ', pure_train_time_list)
 		print('pure train time average ', np.mean(pure_train_time_list[3:]))
 		print('num_input list ', num_input_list)
+		print('num_input  average ', np.mean(num_input_list))
 
 def main():
 	# get_memory("-----------------------------------------main_start***************************")
@@ -349,8 +351,8 @@ def main():
 	argparser.add_argument('--model', type=str, default='SAGE')
 	# argparser.add_argument('--selection-method', type=str, default='arxiv_backpack_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='reddit_10_backpack_bucketing')
-	argparser.add_argument('--selection-method', type=str, default='products_25_backpack_bucketing')
-	# argparser.add_argument('--selection-method', type=str, default='range_bucketing')
+	# argparser.add_argument('--selection-method', type=str, default='products_25_backpack_bucketing')
+	argparser.add_argument('--selection-method', type=str, default='range_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='random_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='fanout_bucketing')
 	# argparser.add_argument('--selection-method', type=str, default='custom_bucketing')
